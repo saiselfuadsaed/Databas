@@ -1,49 +1,53 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>تسجيل الدخول</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Tgarh</title>
 </head>
 <body>
-  <h2>تسجيل الدخول</h2>
+  <h2>Login to Tgarh</h2>
   <form id="login-form">
-    <input type="email" id="email" placeholder="البريد الإلكتروني" required><br>
-    <input type="password" id="password" placeholder="كلمة المرور" required><br>
-    <button type="submit">دخول</button>
+    <label for="email">Email:</label>
+    <input type="email" id="email" required><br><br>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" required><br><br>
+
+    <button type="submit">Login</button>
   </form>
 
-  <p id="message"></p>
+  <div id="message"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/umd/supabase.min.js"></script>
   <script>
-    const SUPABASE_URL = 'https://rodvnjjxtckiehiawzhp.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvZHZuamp4dGNraWVoaWF3emhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4MDk0NjUsImV4cCI6MjA2MjM4NTQ2NX0.CzQGbh_YgCnx6Vlm2lAuZjpqJ9Rboyg5in-yoC47NGs';
-    
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // ✅ ضع هنا الـ URL و API KEY الخاصة بك من Supabase
+    const supabaseUrl = 'https://rodvnjjxtckiehiawzhp.supabase.co'; // ← غيّرها
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvZHZuamp4dGNraWVoaWF3emhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4MDk0NjUsImV4cCI6MjA2MjM4NTQ2NX0.CzQGbh_YgCnx6Vlm2lAuZjpqJ9Rboyg5in-yoC47NGs'; // ← غيّرها
 
-    document.getElementById('login-form').addEventListener('submit', async function(e) {
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    const form = document.getElementById('login-form');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('email').value.trim();
+
+      const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
-      // استعلام Supabase للبحث عن المستخدم
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .eq('password_hash', password)
-        .single();
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
 
-      const message = document.getElementById('message');
-
-      if (error || !data) {
-        message.textContent = 'فشل تسجيل الدخول. تأكد من البيانات.';
-        message.style.color = 'red';
+      if (error) {
+        message.innerText = '❌ Login failed: ' + error.message;
       } else {
-        message.textContent = `مرحباً ${data.username}! تم تسجيل الدخول بنجاح.`;
-        message.style.color = 'green';
-        // يمكنك هنا توجيه المستخدم لصفحة أخرى مثلاً:
-        // window.location.href = 'dashboard.html';
+        message.innerText = '✅ Logged in successfully!';
+        console.log(data);
+        // Redirect or show dashboard
       }
     });
   </script>
